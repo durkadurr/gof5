@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -81,7 +80,7 @@ func writePIDFile(pidPath string) error {
 
 	// Write the PID to file
 	pid := os.Getpid()
-	if err := ioutil.WriteFile(pidPath, []byte(strconv.Itoa(pid)), 0644); err != nil {
+	if err := os.WriteFile(pidPath, []byte(strconv.Itoa(pid)), 0644); err != nil {
 		return fmt.Errorf("failed to write PID file: %w", err)
 	}
 
@@ -160,7 +159,7 @@ func main() {
 	// Skip if already set from daemon env var
 	if opts.Password == "" {
 		if passwordFile != "" {
-			data, err := ioutil.ReadFile(passwordFile)
+			data, err := os.ReadFile(passwordFile)
 			if err != nil {
 				fatal(fmt.Errorf("failed to read password file: %w", err))
 			}

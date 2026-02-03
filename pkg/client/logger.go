@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -123,7 +122,7 @@ func (rt *RoundTripper) logRequest(original io.ReadCloser, contentType string) (
 
 	rt.log().RequestPrintf("Body: %s", bs.String())
 
-	return ioutil.NopCloser(bytes.NewReader(bs.Bytes())), nil
+	return io.NopCloser(bytes.NewReader(bs.Bytes())), nil
 }
 
 // logResponse will log the HTTP Response details.
@@ -138,7 +137,7 @@ func (rt *RoundTripper) logResponse(original io.ReadCloser, contentType string) 
 
 	rt.log().ResponsePrintf("Body: %s", bs.String())
 
-	return ioutil.NopCloser(bytes.NewReader(bs.Bytes())), nil
+	return io.NopCloser(bytes.NewReader(bs.Bytes())), nil
 }
 
 func (rt *RoundTripper) log() Logger {

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -96,7 +95,7 @@ func ReadConfig(debug bool, customConfigPath string) (*Config, error) {
 	cfg := &Config{}
 	// read config file
 	// if config doesn't exist, use defaults
-	if raw, err := ioutil.ReadFile(configFile); err == nil {
+	if raw, err := os.ReadFile(configFile); err == nil {
 		if err = yaml.Unmarshal(raw, cfg); err != nil {
 			return nil, fmt.Errorf("cannot parse %s file: %v", configFile, err)
 		}

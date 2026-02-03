@@ -2,7 +2,6 @@ package cookie
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -23,7 +22,7 @@ func parseCookies(configPath string) map[string][]string {
 	cookies := make(map[string][]string)
 
 	cookiesPath := filepath.Join(configPath, cookiesName)
-	v, err := ioutil.ReadFile(cookiesPath)
+	v, err := os.ReadFile(cookiesPath)
 	if err != nil {
 		// skip "no such file or directory" error on the first startup
 		if e, ok := err.(*os.PathError); !ok || e.Unwrap() != syscall.ENOENT {
@@ -76,7 +75,7 @@ func SaveCookies(c *http.Client, u *url.URL, cfg *config.Config) error {
 	}
 
 	cookiesPath := filepath.Join(cfg.CookiePath, cookiesName)
-	if err = ioutil.WriteFile(cookiesPath, cookies, 0600); err != nil {
+	if err = os.WriteFile(cookiesPath, cookies, 0600); err != nil {
 		return fmt.Errorf("failed to save cookies: %s", err)
 	}
 

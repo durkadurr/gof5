@@ -11,7 +11,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -84,7 +83,7 @@ func readFile(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +232,7 @@ func loginSignature(c *http.Client, server string, _, _ *string) error {
 		return fmt.Errorf("login failed")
 	}
 
-	_, err = ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -265,7 +264,7 @@ func login(c *http.Client, server string, username, password *string) error {
 	if err != nil {
 		return err
 	}
-	_, err = ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -285,7 +284,7 @@ func login(c *http.Client, server string, username, password *string) error {
 	if err != nil {
 		return err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

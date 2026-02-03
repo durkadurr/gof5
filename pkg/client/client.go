@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -180,6 +179,12 @@ func Connect(opts *Options) error {
 		log.Printf("Reusing saved HTTPS VPN session for %s", u.Host)
 	}
 
+	if opts.Password == "" {
+		if envPassword := os.Getenv("GOF5_PASSWORD"); envPassword != "" {
+			opts.Password = envPassword
+		}
+	}
+
 	resp, err := getProfiles(client, opts.Server)
 	if err != nil {
 		return fmt.Errorf("failed to get VPN profiles: %s", err)
@@ -187,7 +192,7 @@ func Connect(opts *Options) error {
 
 	if resp.StatusCode == 302 {
 		// need to relogin
-		_, err = io.Copy(ioutil.Discard, resp.Body)
+		_, err = io.Copy(io.Discard, resp.Body)
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %s", err)
 		}
