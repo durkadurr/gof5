@@ -35,6 +35,8 @@ type Config struct {
 	Daemon bool `yaml:"daemon"`
 	// tls regeneration, tls.RenegotiateNever by default
 	Renegotiation string `yaml:"renegotiation"`
+	// timeout to automatically stop the application (e.g., "5m", "1h", "365d", "-1" for infinity)
+	Timeout string `yaml:"timeout"`
 	// list of detected local DNS servers
 	DNSServers []net.IP `yaml:"-"`
 	// config path

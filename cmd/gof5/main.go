@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/kayrus/gof5/pkg/client"
 	"github.com/kayrus/gof5/pkg/config"
@@ -222,7 +223,34 @@ func main() {
 		}
 	}
 
+	if opts.Config.Timeout != "" && opts.Config.Timeout != "-1" {
+		timeout, err := parseTimeout(opts.Config.Timeout)
+		if err != nil {
+			fatal(fmt.Errorf("invalid timeout format: %w", err))
+		}
+
+		log.Printf("Timeout set to %v, application will stop automatically", timeout)
+
+		go func() {
+			time.Sleep(timeout)
+			log.Printf("Timeout reached, stopping gof5...")
+			os.Exit(0)
+		}()
+	}
+
 	if err := client.Connect(&opts); err != nil {
 		fatal(err)
 	}
+}
+
+func parseTimeout(s string) (time.Duration, error) {
+	if strings.HasSuffix(s, "d") {
+		daysStr := strings.TrimSuffix(s, "d")
+		days, err := strconv.Atoi(daysStr)
+		if err != nil {
+			return 0, fmt.Errorf("invalid days format: %w", err)
+		}
+		return time.Duration(days) * 24 * time.Hour, nil
+	}
+	return time.ParseDuration(s)
 }

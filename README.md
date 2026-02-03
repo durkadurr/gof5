@@ -167,6 +167,39 @@ Alternatively, use the provided `start.sh` script:
 
 **Note:** Daemon mode is not supported on Windows.
 
+### Auto-stop timeout
+
+You can configure gof5 to automatically stop after a specified duration. This is useful for:
+- Limiting VPN sessions to a specific time window
+- Preventing accidental long-running connections
+- Implementing time-limited access policies
+
+Set the `timeout` option in your `~/.gof5/config.yaml`:
+
+```yaml
+# Auto-stop after 1 hour
+timeout: 1h
+
+# Auto-stop after 30 minutes
+timeout: 30m
+
+# Auto-stop after 7 days
+timeout: 7d
+
+# Never stop (infinity, default)
+timeout: -1
+```
+
+Supported time units:
+- `s` - seconds (e.g., `300s` for 5 minutes)
+- `m` - minutes (e.g., `5m` for 5 minutes)
+- `h` - hours (e.g., `1h` for 1 hour)
+- `d` - days (e.g., `365d` for 1 year)
+
+The timeout works in both foreground and daemon modes, and will gracefully exit when the specified time elapses. A log message will be displayed when timeout is reached.
+
+**Note:** When using daemon mode with timeout, ensure your log file (`/tmp/gof5/$USER.log`) is monitored if you need to verify the auto-stop behavior.
+
 ### CA certificate and TLS keypair
 
 Use options below to specify custom TLS parameters:
@@ -190,6 +223,10 @@ rewriteResolv: false
 # When true, gof5 will fork to background and write PID to /tmp/gof5/$USER.pid
 # Default: false (run in foreground)
 daemon: false
+# timeout to automatically stop the application
+# Supports time units: "5m" (minutes), "1h" (hours), "365d" (days)
+# Default: "-1" (infinity/never stop)
+timeout: -1
 # experimental DTLSv1.2 support
 # F5 BIG-IP server should have enabled DTLSv1.2 support
 dtls: false
