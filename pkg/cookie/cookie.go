@@ -40,7 +40,7 @@ func parseCookies(configPath string) map[string][]string {
 }
 
 func ReadCookies(c *http.Client, u *url.URL, cfg *config.Config, sessionID string) {
-	v := parseCookies(cfg.Path)
+	v := parseCookies(cfg.CookiePath)
 	if v, ok := v[u.Host]; ok {
 		var cookies []*http.Cookie
 		for _, c := range v {
@@ -62,7 +62,7 @@ func ReadCookies(c *http.Client, u *url.URL, cfg *config.Config, sessionID strin
 }
 
 func SaveCookies(c *http.Client, u *url.URL, cfg *config.Config) error {
-	raw := parseCookies(cfg.Path)
+	raw := parseCookies(cfg.CookiePath)
 	// empty current cookies list
 	raw[u.Host] = nil
 	// write down new cookies
@@ -75,7 +75,7 @@ func SaveCookies(c *http.Client, u *url.URL, cfg *config.Config) error {
 		return fmt.Errorf("cannot marshal cookies: %v", err)
 	}
 
-	cookiesPath := filepath.Join(cfg.Path, cookiesName)
+	cookiesPath := filepath.Join(cfg.CookiePath, cookiesName)
 	if err = ioutil.WriteFile(cookiesPath, cookies, 0600); err != nil {
 		return fmt.Errorf("failed to save cookies: %s", err)
 	}

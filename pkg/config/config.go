@@ -28,7 +28,7 @@ var (
 	supportedDrivers        = []string{"wireguard", "pppd"}
 )
 
-func ReadConfig(debug bool) (*Config, error) {
+func ReadConfig(debug bool, customConfigPath string) (*Config, error) {
 	var err error
 	var usr *user.User
 
@@ -51,7 +51,19 @@ func ReadConfig(debug bool) (*Config, error) {
 			return nil, fmt.Errorf("failed to detect home directory: %s", err)
 		}
 	}
-	configPath := filepath.Join(usr.HomeDir, configDir)
+
+	var configPath string
+	var configFile string
+
+	if customConfigPath != "" {
+		// Use custom config path
+		configFile = customConfigPath
+		configPath = filepath.Dir(customConfigPath)
+	} else {
+		// Use default config path
+		configPath = filepath.Join(usr.HomeDir, configDir)
+		configFile = filepath.Join(configPath, configName)
+	}
 
 	var uid, gid int
 	// windows preserves the original user parameters, no need to detect uid/gid
@@ -68,7 +80,7 @@ func ReadConfig(debug bool) (*Config, error) {
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		log.Printf("%q directory doesn't exist, creating...", configPath)
-		if err := os.Mkdir(configPath, 0700); err != nil {
+		if err := os.MkdirAll(configPath, 0700); err != nil {
 			return nil, fmt.Errorf("failed to create %q config directory: %s", configPath, err)
 		}
 		// windows preserves the original user parameters, no need to chown
@@ -84,9 +96,9 @@ func ReadConfig(debug bool) (*Config, error) {
 	cfg := &Config{}
 	// read config file
 	// if config doesn't exist, use defaults
-	if raw, err := ioutil.ReadFile(filepath.Join(configPath, configName)); err == nil {
+	if raw, err := ioutil.ReadFile(configFile); err == nil {
 		if err = yaml.Unmarshal(raw, cfg); err != nil {
-			return nil, fmt.Errorf("cannot parse %s file: %v", configName, err)
+			return nil, fmt.Errorf("cannot parse %s file: %v", configFile, err)
 		}
 	} else {
 		log.Printf("Cannot read config file: %s", err)
@@ -122,6 +134,26 @@ func ReadConfig(debug bool) (*Config, error) {
 	}
 
 	cfg.Path = configPath
+
+	// Always use ~/.gof5 for cookies regardless of custom config path
+	cookiePath := filepath.Join(usr.HomeDir, configDir)
+	if cookiePath != configPath {
+		// Ensure the cookie directory exists when using custom config
+		if _, err := os.Stat(cookiePath); os.IsNotExist(err) {
+			log.Printf("%q directory doesn't exist, creating...", cookiePath)
+			if err := os.MkdirAll(cookiePath, 0700); err != nil {
+				return nil, fmt.Errorf("failed to create %q cookie directory: %s", cookiePath, err)
+			}
+			if runtime.GOOS != "windows" {
+				if err := os.Chown(cookiePath, uid, gid); err != nil {
+					return nil, fmt.Errorf("failed to set an owner for the %q cookie directory: %s", cookiePath, err)
+				}
+			}
+		} else if err != nil {
+			return nil, fmt.Errorf("failed to get %q directory stat: %s", cookiePath, err)
+		}
+	}
+	cfg.CookiePath = cookiePath
 	cfg.Uid = uid
 	cfg.Gid = gid
 

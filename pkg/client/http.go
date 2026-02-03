@@ -22,7 +22,6 @@ import (
 
 	"github.com/kayrus/gof5/pkg/config"
 
-	"github.com/howeyc/gopass"
 	"github.com/manifoldco/promptui"
 	"github.com/mitchellh/go-homedir"
 )
@@ -248,12 +247,11 @@ func login(c *http.Client, server string, username, password *string) error {
 		fmt.Scanln(username)
 	}
 	if *password == "" {
-		fmt.Print("Enter VPN password: ")
-		v, err := gopass.GetPasswd()
-		if err != nil {
-			return fmt.Errorf("failed to read password: %s", err)
+		if v := os.Getenv("GOF5_PASSWORD"); v != "" {
+			*password = v
+		} else {
+			return fmt.Errorf("password is required; set GOF5_PASSWORD environment variable or use --password flag")
 		}
-		*password = string(v)
 	}
 
 	log.Printf("Logging in...")

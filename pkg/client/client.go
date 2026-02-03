@@ -24,6 +24,7 @@ type Options struct {
 	Server        string
 	Username      string
 	Password      string
+	PasswordFile  string
 	SessionID     string
 	CACert        string
 	Cert          string
@@ -34,6 +35,7 @@ type Options struct {
 	Version       bool
 	ProfileIndex  int
 	ProfileName   string
+	ConfigPath    string
 	Renegotiation tls.RenegotiationSupport
 }
 
@@ -109,12 +111,18 @@ func Connect(opts *Options) error {
 	}
 	opts.Server = u.Host
 
-	// read config
-	cfg, err := config.ReadConfig(opts.Debug)
-	if err != nil {
-		return err
+	// read config if not already loaded
+	var cfg *config.Config
+	if opts.Config.Driver == "" {
+		var err error
+		cfg, err = config.ReadConfig(opts.Debug, opts.ConfigPath)
+		if err != nil {
+			return err
+		}
+		opts.Config = *cfg
+	} else {
+		cfg = &opts.Config
 	}
-	opts.Config = *cfg
 
 	switch cfg.Renegotiation {
 	case "RenegotiateOnceAsClient":

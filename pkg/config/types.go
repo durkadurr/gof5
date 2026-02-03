@@ -31,12 +31,16 @@ type Config struct {
 	// rewrite /etc/resolv.conf instead of renaming
 	// required in ChromeOS, where /etc/resolv.conf cannot be renamed
 	RewriteResolv bool `yaml:"rewriteResolv"`
+	// run as background daemon process (default: foreground)
+	Daemon bool `yaml:"daemon"`
 	// tls regeneration, tls.RenegotiateNever by default
 	Renegotiation string `yaml:"renegotiation"`
 	// list of detected local DNS servers
 	DNSServers []net.IP `yaml:"-"`
 	// config path
 	Path string `yaml:"-"`
+	// cookie path (always ~/.gof5)
+	CookiePath string `yaml:"-"`
 	// current user or sudo user UID
 	Uid int `yaml:"-"`
 	// current user or sudo user GID

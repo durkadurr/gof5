@@ -1,0 +1,48 @@
+# DNS proxy listen address, defaults to 127.0.0.245
+# In BSD defaults to 127.0.0.1
+# listenDNS: 127.0.0.1
+# rewrite /etc/resolv.conf instead of renaming
+# Linux only, required in cases when /etc/resolv.conf cannot be renamed
+rewriteResolv: false
+# Run gof5 as a background daemon process
+# When true, gof5 will fork to background and write PID to /tmp/gof5/$USER.pid
+# Default: false (run in foreground)
+daemon: false
+# experimental DTLSv1.2 support
+# F5 BIG-IP server should have enabled DTLSv1.2 support
+dtls: false
+# TLS certificate check
+insecureTLS: false
+# Enable IPv6
+ipv6: false
+# driver specifies which tunnel driver to use.
+# supported values are: wireguard or pppd.
+# wireguard is default.
+# pppd requires a pppd or ppp (in FreeBSD) binary
+driver: wireguard
+# When pppd driver is used, you can specify a list of extra pppd arguments
+PPPdArgs: []
+# disableDNS allows to completely disable DNS handling,
+# i.e. don't alter system DNS (e.g. /etc/resolv.conf) at all
+disableDNS: false
+# TLS renegotiation support as defined in tls.RenegotiationSupport, disabled by default
+renegotiation: RenegotiateNever
+# A list of DNS zones to be resolved by VPN DNS servers
+# When empty, every DNS query will be resolved by VPN DNS servers
+dns:
+- .corp.int.
+- .corp.
+# for reverse DNS lookup
+- .in-addr.arpa.
+# override DNS servers, provided by a VPN server profile
+overrideDNS:
+- 8.8.8.8
+# override DNS search suffix, provided by a VPN server profile
+overrideDNSSuffix:
+- my.corp
+# A list of subnets to be routed via VPN
+# When not set, the routes pushed from F5 will be used
+# Use "routes: []", if you don't want gof5 to manage routes at all
+routes:
+- 1.2.3.4
+- 1.2.3.5/32

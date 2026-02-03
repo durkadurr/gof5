@@ -108,6 +108,65 @@ Use `--select` to choose a VPN server from the list, known to a current server.
 
 Use `--profile-index` to define a custom F5 VPN profile index.
 
+Use `--config` to specify a custom configuration file path. Defaults to `~/.gof5/config.yaml`.
+
+Use `--password-file` to read the password from a file (useful for scripts and daemon mode).
+
+### Daemon mode
+
+gof5 can run as a background daemon process by setting `daemon: true` in the config file. When daemon mode is enabled:
+- The process forks to the background
+- The PID is written to `/tmp/gof5/$USER.pid`
+- The PID file is automatically removed when the process exits
+
+**Password for daemon mode:**
+
+When running in daemon mode, you must provide the password since there's no TTY for interactive input. Use one of these methods (in order of security):
+
+1. **Password file** (recommended for daemon mode):
+   ```sh
+   # Create a password file with restricted permissions
+   echo "your-password" > ~/.gof5/passwd
+   chmod 600 ~/.gof5/passwd
+   
+   # Run gof5 with password file
+   sudo gof5 --config ~/.gof5/config.yaml --password-file ~/.gof5/passwd
+   ```
+
+2. **Environment variable**:
+   ```sh
+   export GOF5_PASSWORD="your-password"
+   sudo gof5 --config ~/.gof5/config.yaml
+   ```
+
+3. **Command line flag** (least secure, visible in process list):
+   ```sh
+   sudo gof5 --config ~/.gof5/config.yaml --password "your-password"
+   ```
+
+**Note:** If `--close-session` is used with daemon mode, the session will be closed when the daemon exits.
+
+**Managing the daemon:**
+
+```sh
+# Check if gof5 is running
+cat /tmp/gof5/$USER.pid
+
+# Stop the daemon
+kill $(cat /tmp/gof5/$USER.pid)
+```
+
+Alternatively, use the provided `start.sh` script:
+
+```sh
+./start.sh start    # Start gof5
+./start.sh stop     # Stop gof5
+./start.sh restart  # Restart gof5
+./start.sh status   # Check status
+```
+
+**Note:** Daemon mode is not supported on Windows.
+
 ### CA certificate and TLS keypair
 
 Use options below to specify custom TLS parameters:
@@ -127,6 +186,10 @@ You can define an extra `~/.gof5/config.yaml` file with contents:
 # rewrite /etc/resolv.conf instead of renaming
 # Linux only, required in cases when /etc/resolv.conf cannot be renamed
 rewriteResolv: false
+# Run gof5 as a background daemon process
+# When true, gof5 will fork to background and write PID to /tmp/gof5/$USER.pid
+# Default: false (run in foreground)
+daemon: false
 # experimental DTLSv1.2 support
 # F5 BIG-IP server should have enabled DTLSv1.2 support
 dtls: false
