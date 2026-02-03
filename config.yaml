@@ -1,6 +1,8 @@
 # DNS proxy listen address, defaults to 127.0.0.245
 # In BSD defaults to 127.0.0.1
 # listenDNS: 127.0.0.1
+# Connection timeout (supports time units: "5m", "1h", "365d", "-1" for infinity)
+timeout: -1
 # rewrite /etc/resolv.conf instead of renaming
 # Linux only, required in cases when /etc/resolv.conf cannot be renamed
 rewriteResolv: false
